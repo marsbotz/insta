@@ -6,23 +6,25 @@
   <title>Instagram Video Downloader</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f0f4f8;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
       text-align: center;
-      padding: 20px;
+      padding: 30px;
+    }
+    h1 {
+      color: #222;
     }
     input {
       width: 80%;
       padding: 10px;
-      font-size: 1rem;
-      border: 2px solid #ccc;
-      border-radius: 5px;
       margin-top: 20px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
     }
     button {
-      padding: 10px 20px;
-      font-size: 1rem;
-      margin-top: 10px;
+      margin-top: 15px;
+      padding: 10px 25px;
+      font-size: 16px;
       background: #2563eb;
       color: white;
       border: none;
@@ -30,41 +32,39 @@
       cursor: pointer;
     }
     video {
-      margin-top: 20px;
-      max-width: 90%;
-      height: auto;
-      border-radius: 10px;
+      margin-top: 25px;
+      width: 90%;
+      max-width: 500px;
     }
-    a.download-btn {
+    .error {
+      color: red;
+      margin-top: 15px;
+    }
+    .download {
       display: inline-block;
       margin-top: 15px;
       padding: 10px 20px;
-      background: #10b981;
+      background-color: #10b981;
       color: white;
+      border-radius: 6px;
       text-decoration: none;
-      border-radius: 5px;
-    }
-    #result {
-      margin-top: 30px;
     }
   </style>
 </head>
 <body>
   <h1>📥 Instagram Video Downloader</h1>
-  <input type="text" id="igUrl" placeholder="Paste Instagram Post/Reel URL here" />
-  <br>
+  <input type="text" id="urlInput" placeholder="Paste Instagram Reel/Post Link" />
+  <br />
   <button onclick="fetchVideo()">Fetch Video</button>
-
   <div id="result"></div>
-
   <script>
     async function fetchVideo() {
-      const url = document.getElementById("igUrl").value;
-      const resultBox = document.getElementById("result");
-      resultBox.innerHTML = "⏳ Fetching video...";
+      const url = document.getElementById("urlInput").value.trim();
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "";
 
-      if (!url.includes("instagram.com")) {
-        resultBox.innerHTML = "❌ Please enter a valid Instagram URL.";
+      if (!url) {
+        resultDiv.innerHTML = `<div class="error">⚠️ Please enter a URL.</div>`;
         return;
       }
 
@@ -72,16 +72,17 @@
         const res = await fetch(`https://streamfile-cf.aalam04042002.workers.dev/?url=${encodeURIComponent(url)}`);
         const data = await res.json();
 
-        if (data.success) {
-          resultBox.innerHTML = `
-            <video controls src="${data.videoUrl}"></video><br>
-            <a class="download-btn" href="${data.videoUrl}" download>⬇️ Download Video</a>
-          `;
-        } else {
-          resultBox.innerHTML = `❌ ${data.message || "Video not found."}`;
+        if (!data.url) {
+          throw new Error("Invalid response");
         }
-      } catch (err) {
-        resultBox.innerHTML = `❌ Error: ${err.message}`;
+
+        resultDiv.innerHTML = `
+          <video controls src="${data.url}"></video>
+          <br/>
+          <a class="download" href="${data.url}" download>⬇️ Download Video</a>
+        `;
+      } catch (e) {
+        resultDiv.innerHTML = `<div class="error">❌ Error: Failed to fetch video</div>`;
       }
     }
   </script>
