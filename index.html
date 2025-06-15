@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Instagram Video Downloader</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f4f8;
+      text-align: center;
+      padding: 20px;
+    }
+    input {
+      width: 80%;
+      padding: 10px;
+      font-size: 1rem;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin-top: 10px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    video {
+      margin-top: 20px;
+      max-width: 90%;
+      height: auto;
+      border-radius: 10px;
+    }
+    a.download-btn {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #10b981;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    #result {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📥 Instagram Video Downloader</h1>
+  <input type="text" id="igUrl" placeholder="Paste Instagram Post/Reel URL here" />
+  <br>
+  <button onclick="fetchVideo()">Fetch Video</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function fetchVideo() {
+      const url = document.getElementById("igUrl").value;
+      const resultBox = document.getElementById("result");
+      resultBox.innerHTML = "⏳ Fetching video...";
+
+      if (!url.includes("instagram.com")) {
+        resultBox.innerHTML = "❌ Please enter a valid Instagram URL.";
+        return;
+      }
+
+      try {
+        const res = await fetch(`https://insta-downloader-bot.workers.dev/?url=${encodeURIComponent(url)}`);
+        const data = await res.json();
+
+        if (data.success) {
+          resultBox.innerHTML = `
+            <video controls src="${data.videoUrl}"></video><br>
+            <a class="download-btn" href="${data.videoUrl}" download>⬇️ Download Video</a>
+          `;
+        } else {
+          resultBox.innerHTML = `❌ ${data.message || "Video not found."}`;
+        }
+      } catch (err) {
+        resultBox.innerHTML = `❌ Error: ${err.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
